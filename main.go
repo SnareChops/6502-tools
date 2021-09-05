@@ -3,13 +3,12 @@ package main
 import (
 	"errors"
 	"fmt"
-	"log"
 	"os"
 	"path"
 	"strings"
 
 	"github.com/SnareChops/6502-tools/asm"
-	"github.com/hajimehoshi/ebiten"
+	"github.com/SnareChops/6502-tools/gui"
 )
 
 const (
@@ -19,24 +18,29 @@ const (
 
 var (
 	command func([]string) error
-	input   string
 )
 
 func init() {
-	switch os.Args[1] {
-	case "asm":
-		command = assemble
-		break
-	case "sim":
+	if len(os.Args) < 2 {
 		command = simulate
-		break
-	default:
-		command = invalid
+	} else {
+		switch os.Args[1] {
+		case "asm":
+			command = assemble
+		case "sim":
+			command = simulate
+		default:
+			command = simulate
+		}
 	}
 }
 
 func main() {
-	err := command(os.Args[2:])
+	args := []string{}
+	if len(os.Args) >= 2 {
+		args = os.Args[2:]
+	}
+	err := command(args)
 	if err != nil {
 		panic(err)
 	}
@@ -52,39 +56,24 @@ func assemble(args []string) error {
 	outputname := basename + ".bin"
 
 	// Assemble file
-	data, err := asm.File(filepath)
+	err := asm.AssembleFile(filepath, outputname)
 	if err != nil {
 		return err
 	}
 
-	// Create binary file
-	output, err := os.Create(outputname)
-	if err != nil {
-		return err
-	}
-	defer output.Close()
-
-	// Output to file
-	size, err := output.Write(data)
-	if err != nil {
-		return err
-	}
-
-	fmt.Printf("Wrote %d bytes to %s", size, outputname)
 	return nil
 }
 
 func simulate([]string) error {
-	game := &Game{}
-	ebiten.SetWindowSize(SCREEN_HEIGHT, SCREEN_WIDTH)
-	ebiten.SetWindowTitle("6502 Simulator")
+	// game := &Game{}
+	// ebiten.SetWindowSize(SCREEN_HEIGHT, SCREEN_WIDTH)
+	// ebiten.SetWindowTitle("6502 Simulator")
 
-	if err := ebiten.RunGame(game); err != nil {
-		log.Fatal(err)
-	}
+	// if err := ebiten.RunGame(game); err != nil {
+	// 	log.Fatal(err)
+	// }
+	// return nil
+	fmt.Println("Starting GUI")
+	gui.Start()
 	return nil
-}
-
-func invalid([]string) error {
-	return errors.New("invalid subcommand")
 }

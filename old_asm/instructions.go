@@ -1,7 +1,7 @@
-package parse
+package old_asm
 
 import (
-	"github.com/SnareChops/6502-tools/lang"
+	"github.com/SnareChops/6502-tools/old_asm/lang"
 )
 
 var (
@@ -118,36 +118,51 @@ var (
 	// NOP parses a NOP instruction
 	NOP = implied(lang.NOP)
 	// Instructions List of all instruction parsers
-	Instructions = []Parser{LDA, LDX, LDY, STA, STX, STY, ADC, SBC, INC, INX, INY, DEC, DEX, DEY, ASL, LSR, ROL, ROR, AND, ORA, XOR, CMP, CPX, CPY, BIT, BCC, BCS, BNE, BEQ, BPL, BMI, BVC, BVS, TAX, TXA, TAY, TYA, TSX, TXS, PHA, PLA, PHP, PLP, JMP, JSR, RTS, RTI, CLC, SEC, CLD, SED, CLI, SEI, CLV, BRK, NOP}
+	Instructions = []InstructionParser{LDA, LDX, LDY, STA, STX, STY, ADC, SBC, INC, INX, INY, DEC, DEX, DEY, ASL, LSR, ROL, ROR, AND, ORA, XOR, CMP, CPX, CPY, BIT, BCC, BCS, BNE, BEQ, BPL, BMI, BVC, BVS, TAX, TXA, TAY, TYA, TSX, TXS, PHA, PLA, PHP, PLP, JMP, JSR, RTS, RTI, CLC, SEC, CLD, SED, CLI, SEI, CLV, BRK, NOP}
 )
 
-func inst(acronym string, parsers ...Parser) Parser {
+type InstructionParser = func(string) *Instruction
+
+func inst(acronym string, parsers ...ModeParser) InstructionParser {
 	matcher := Matcher("(?i)^" + acronym + "\\s+([\\w$,()]*)(?:\\s*//.*)*$")
-	return func(inp string) (string, []byte) {
+	return func(inp string) *Instruction {
 		if match := matcher(inp); match != nil {
 			match[1] = ReplaceFromLabel(match[1])
-			if mode, value := Either(match[1], parsers...); mode != "" {
-				return acronym, append(lang.Opcode(acronym, mode), value...)
+			if mode, value := EitherMode(match[1], parsers...); mode != "" {
+				instruction := &Instruction{
+					Name:   acronym,
+					Opcode: lang.Opcode(acronym, mode),
+					Value:  value,
+				}
+				if mode == lang.Label {
+					instruction.LabelValue = true
+				}
+				return instruction
 			}
 		}
-		return "", nil
+		return nil
 	}
 }
 
-func implied(acronym string) Parser {
+func implied(acronym string) InstructionParser {
 	matcher := Matcher("(?i)^" + acronym + "(?:\\s*//.*)*$")
-	return func(inp string) (string, []byte) {
+	return func(inp string) *Instruction {
 		if match := matcher(inp); match != nil {
-			return acronym, lang.Opcode(acronym, lang.IMP)
+			return &Instruction{
+				Name:       acronym,
+				Opcode:     lang.Opcode(acronym, lang.IMP),
+				LabelValue: false,
+				Value:      []byte{},
+			}
 		}
-		return "", nil
+		return nil
 	}
 }
 
-func instOrImp(acronym string, parsers ...Parser) Parser {
+func instOrImp(acronym string, parsers ...ModeParser) InstructionParser {
 	in := inst(acronym, parsers...)
 	imp := implied(acronym)
-	return func(inp string) (string, []byte) {
-		return Either(inp, imp, in)
+	return func(inp string) *Instruction {
+		return EitherInstruction(inp, imp, in)
 	}
 }

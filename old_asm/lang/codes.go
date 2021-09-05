@@ -266,3 +266,9 @@ var opcodes = map[string]map[string]byte{
 		IMP: 0xea,
 	},
 }
+
+// Opcode returns the opcode for the provided
+// instruction and address mode
+func Opcode(inst string, mode string) byte {
+	return opcodes[inst][mode]
+}

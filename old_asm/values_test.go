@@ -1,256 +1,256 @@
-package parse_test
+package old_asm_test
 
 import (
 	"testing"
 
-	"github.com/SnareChops/6502-tools/parse"
+	asm "github.com/SnareChops/6502-tools/old_asm"
 	"github.com/stretchr/testify/require"
 )
 
 func TestA(t *testing.T) {
-	match, result := parse.A("$1234")
+	match, result := asm.A("$1234")
 	require.Equal(t, `A`, match)
 	require.Equal(t, []byte{0xd2, 0x04}, result)
 
-	match, result = parse.A("$65535")
+	match, result = asm.A("$65535")
 	require.Equal(t, `A`, match)
 	require.Equal(t, []byte{0xff, 0xff}, result)
 
-	match, result = parse.A("$0xff12")
+	match, result = asm.A("$0xff12")
 	require.Equal(t, `A`, match)
 	require.Equal(t, []byte{0x12, 0xff}, result)
 
-	match, result = parse.A("1234")
+	match, _ = asm.A("1234")
 	require.Empty(t, match)
 }
 
 func TestI(t *testing.T) {
-	match, result := parse.I("12")
+	match, result := asm.I("12")
 	require.Equal(t, `I`, match)
 	require.Equal(t, []byte{0x0c}, result)
 
-	match, result = parse.I("'c'")
+	match, result = asm.I("'c'")
 	require.Equal(t, `I`, match)
 	require.Equal(t, []byte{0x63}, result)
 
-	match, result = parse.I("0xff")
+	match, result = asm.I("0xff")
 	require.Equal(t, `I`, match)
 	require.Equal(t, []byte{0xff}, result)
 }
 
 func TestAX(t *testing.T) {
-	match, result := parse.AX("$1234,x")
+	match, result := asm.AX("$1234,x")
 	require.Equal(t, `AX`, match)
 	require.Equal(t, []byte{0xd2, 0x04}, result)
 
-	match, result = parse.AX("$1234,X")
+	match, result = asm.AX("$1234,X")
 	require.Equal(t, `AX`, match)
 	require.Equal(t, []byte{0xd2, 0x04}, result)
 
-	match, result = parse.AX("$0xffd1,x")
+	match, result = asm.AX("$0xffd1,x")
 	require.Equal(t, `AX`, match)
 	require.Equal(t, []byte{0xd1, 0xff}, result)
 
-	match, result = parse.AX("$'c',x")
+	match, _ = asm.AX("$'c',x")
 	require.Empty(t, match)
 
-	match, result = parse.AX("1234,x")
+	match, _ = asm.AX("1234,x")
 	require.Empty(t, match)
 
-	match, result = parse.AX("$1234,y")
+	match, _ = asm.AX("$1234,y")
 	require.Empty(t, match)
 }
 
 func TestAY(t *testing.T) {
-	match, result := parse.AY("$1234,y")
+	match, result := asm.AY("$1234,y")
 	require.Equal(t, `AY`, match)
 	require.Equal(t, []byte{0xd2, 0x04}, result)
 
-	match, result = parse.AY("$1234,Y")
+	match, result = asm.AY("$1234,Y")
 	require.Equal(t, `AY`, match)
 	require.Equal(t, []byte{0xd2, 0x04}, result)
 
-	match, result = parse.AY("$0xffd1,y")
+	match, result = asm.AY("$0xffd1,y")
 	require.Equal(t, `AY`, match)
 	require.Equal(t, []byte{0xd1, 0xff}, result)
 
-	match, result = parse.AY("$'c',y")
+	match, _ = asm.AY("$'c',y")
 	require.Empty(t, match)
 
-	match, result = parse.AY("1234,y")
+	match, _ = asm.AY("1234,y")
 	require.Empty(t, match)
 
-	match, result = parse.AY("$1234,x")
+	match, _ = asm.AY("$1234,x")
 	require.Empty(t, match)
 }
 
 func TestZP(t *testing.T) {
-	match, result := parse.ZP("$12")
+	match, result := asm.ZP("$12")
 	require.Equal(t, `ZP`, match)
 	require.Equal(t, []byte{0x0c}, result)
 
-	match, result = parse.ZP("$0xff")
+	match, result = asm.ZP("$0xff")
 	require.Equal(t, `ZP`, match)
 	require.Equal(t, []byte{0xff}, result)
 
-	match, result = parse.ZP("$255")
+	match, result = asm.ZP("$255")
 	require.Equal(t, `ZP`, match)
 	require.Equal(t, []byte{0xff}, result)
 
-	match, result = parse.ZP("$256")
+	match, _ = asm.ZP("$256")
 	require.Empty(t, match)
 
-	match, result = parse.ZP("26")
+	match, _ = asm.ZP("26")
 	require.Empty(t, match)
 
-	match, result = parse.ZP("$'c'")
+	match, _ = asm.ZP("$'c'")
 	require.Empty(t, match)
 
-	match, result = parse.ZP("")
+	match, _ = asm.ZP("")
 	require.Empty(t, match)
 }
 
 func TestZPX(t *testing.T) {
-	match, result := parse.ZPX("$12,x")
+	match, result := asm.ZPX("$12,x")
 	require.Equal(t, `ZPX`, match)
 	require.Equal(t, []byte{0x0c}, result)
 
-	match, result = parse.ZPX("$0xff,x")
+	match, result = asm.ZPX("$0xff,x")
 	require.Equal(t, `ZPX`, match)
 	require.Equal(t, []byte{0xff}, result)
 
-	match, result = parse.ZPX("$255,x")
+	match, result = asm.ZPX("$255,x")
 	require.Equal(t, `ZPX`, match)
 	require.Equal(t, []byte{0xff}, result)
 
-	match, result = parse.ZPX("$256,x")
+	match, _ = asm.ZPX("$256,x")
 	require.Empty(t, match)
 
-	match, result = parse.ZPX("255,x")
+	match, _ = asm.ZPX("255,x")
 	require.Empty(t, match)
 
-	match, result = parse.ZPX("$'c',x")
+	match, _ = asm.ZPX("$'c',x")
 	require.Empty(t, match)
 
-	match, result = parse.ZPX("")
+	match, _ = asm.ZPX("")
 	require.Empty(t, match)
 }
 
 func TestZPY(t *testing.T) {
-	match, result := parse.ZPY("$12,y")
+	match, result := asm.ZPY("$12,y")
 	require.Equal(t, `ZPY`, match)
 	require.Equal(t, []byte{0x0c}, result)
 
-	match, result = parse.ZPY("$0xff,y")
+	match, result = asm.ZPY("$0xff,y")
 	require.Equal(t, `ZPY`, match)
 	require.Equal(t, []byte{0xff}, result)
 
-	match, result = parse.ZPY("$255,y")
+	match, result = asm.ZPY("$255,y")
 	require.Equal(t, `ZPY`, match)
 	require.Equal(t, []byte{0xff}, result)
 
-	match, result = parse.ZPY("$256,y")
+	match, _ = asm.ZPY("$256,y")
 	require.Empty(t, match)
 
-	match, result = parse.ZPY("255,y")
+	match, _ = asm.ZPY("255,y")
 	require.Empty(t, match)
 
-	match, result = parse.ZPY("$'c',y")
+	match, _ = asm.ZPY("$'c',y")
 	require.Empty(t, match)
 
-	match, result = parse.ZPY("")
+	match, _ = asm.ZPY("")
 	require.Empty(t, match)
 }
 
 func TestZPIX(t *testing.T) {
-	match, result := parse.ZPIX("($12,x)")
+	match, result := asm.ZPIX("($12,x)")
 	require.Equal(t, `ZPIX`, match)
 	require.Equal(t, []byte{0x0c}, result)
 
-	match, result = parse.ZPIX("($0xff,x)")
+	match, result = asm.ZPIX("($0xff,x)")
 	require.Equal(t, `ZPIX`, match)
 	require.Equal(t, []byte{0xff}, result)
 
-	match, result = parse.ZPIX("($255,x)")
+	match, result = asm.ZPIX("($255,x)")
 	require.Equal(t, `ZPIX`, match)
 	require.Equal(t, []byte{0xff}, result)
 
-	match, result = parse.ZPIX("$255,x")
+	match, _ = asm.ZPIX("$255,x")
 	require.Empty(t, match)
 
-	match, result = parse.ZPIX("($256,x)")
+	match, _ = asm.ZPIX("($256,x)")
 	require.Empty(t, match)
 
-	match, result = parse.ZPIX("(255,x)")
+	match, _ = asm.ZPIX("(255,x)")
 	require.Empty(t, match)
 }
 
 func TestZPIY(t *testing.T) {
-	match, result := parse.ZPIY("($12),y")
+	match, result := asm.ZPIY("($12),y")
 	require.Equal(t, `ZPIY`, match)
 	require.Equal(t, []byte{0xc}, result)
 
-	match, result = parse.ZPIY("($0xff),y")
+	match, result = asm.ZPIY("($0xff),y")
 	require.Equal(t, `ZPIY`, match)
 	require.Equal(t, []byte{0xff}, result)
 
-	match, result = parse.ZPIY("($255),y")
+	match, result = asm.ZPIY("($255),y")
 	require.Equal(t, `ZPIY`, match)
 	require.Equal(t, []byte{0xff}, result)
 
-	match, result = parse.ZPIY("($256),y")
+	match, _ = asm.ZPIY("($256),y")
 	require.Empty(t, match)
 
-	match, result = parse.ZPIY("$255,y")
+	match, _ = asm.ZPIY("$255,y")
 	require.Empty(t, match)
 
-	match, result = parse.ZPIY("(255),y")
+	match, _ = asm.ZPIY("(255),y")
 	require.Empty(t, match)
 }
 
 func TestR(t *testing.T) {
-	match, result := parse.R("$12")
+	match, result := asm.R("$12")
 	require.Equal(t, `R`, match)
 	require.Equal(t, []byte{0x0c}, result)
 
-	match, result = parse.R("$0x40")
+	match, result = asm.R("$0x40")
 	require.Equal(t, `R`, match)
 	require.Equal(t, []byte{0x40}, result)
 
-	match, result = parse.R("$127")
+	match, result = asm.R("$127")
 	require.Equal(t, `R`, match)
 	require.Equal(t, []byte{0x7f}, result)
 
-	match, result = parse.R("$-128")
+	match, result = asm.R("$-128")
 	require.Equal(t, `R`, match)
 	require.Equal(t, []byte{0x80}, result)
 
-	match, result = parse.R("$128")
+	match, _ = asm.R("$128")
 	require.Empty(t, match)
 
-	match, result = parse.R("26")
+	match, _ = asm.R("26")
 	require.Empty(t, match)
 
-	match, result = parse.R("$'c'")
+	match, _ = asm.R("$'c'")
 	require.Empty(t, match)
 
-	match, result = parse.R("")
+	match, _ = asm.R("")
 	require.Empty(t, match)
 }
 
 func TestAI(t *testing.T) {
-	match, result := parse.AI("($1234)")
+	match, result := asm.AI("($1234)")
 	require.Equal(t, `AI`, match)
 	require.Equal(t, []byte{0xd2, 0x04}, result)
 
-	match, result = parse.AI("($65535)")
+	match, result = asm.AI("($65535)")
 	require.Equal(t, `AI`, match)
 	require.Equal(t, []byte{0xff, 0xff}, result)
 
-	match, result = parse.AI("($0xff12)")
+	match, result = asm.AI("($0xff12)")
 	require.Equal(t, `AI`, match)
 	require.Equal(t, []byte{0x12, 0xff}, result)
 
-	match, result = parse.AI("(1234)")
+	match, _ = asm.AI("(1234)")
 	require.Empty(t, match)
 }
