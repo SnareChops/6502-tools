@@ -11,6 +11,7 @@ require (
 	github.com/davecgh/go-spew v1.1.0 // indirect
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20200707082815-5321531c36a2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/webview/webview v0.0.0-20210330151455-f540d88dde4e // indirect
 	golang.org/x/exp v0.0.0-20200901203048-c4f52b2c50aa // indirect
 	golang.org/x/image v0.0.0-20200801110659-972c09e46d76 // indirect
 	golang.org/x/mobile v0.0.0-20210208171126-f462b3930c8f // indirect

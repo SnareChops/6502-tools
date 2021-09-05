@@ -50,62 +50,6 @@ func (m *Model) NextWord() []byte {
 	return []byte{m.NextByte(), m.NextByte()}
 }
 
-func (m *Model) Pin(i int) bool {
-	switch i {
-	case 1:
-		return false
-	case 2:
-		return true
-	case 3:
-		return false
-	case 4:
-		return true
-	case 5:
-		return false
-	case 6:
-		return true
-	case 7:
-		return false
-	case 8:
-		return true
-	case 9:
-		return bit.FromByte(m.Address[1]).Get(0)
-	case 10:
-		return bit.FromByte(m.Address[1]).Get(1)
-	case 11:
-		return bit.FromByte(m.Address[1]).Get(2)
-	case 12:
-		return bit.FromByte(m.Address[1]).Get(3)
-	case 13:
-		return bit.FromByte(m.Address[1]).Get(4)
-	case 14:
-		return bit.FromByte(m.Address[1]).Get(5)
-	case 15:
-		return bit.FromByte(m.Address[1]).Get(6)
-	case 16:
-		return bit.FromByte(m.Address[1]).Get(7)
-	case 17:
-		return bit.FromByte(m.Address[0]).Get(0)
-	case 18:
-		return bit.FromByte(m.Address[0]).Get(1)
-	case 19:
-		return bit.FromByte(m.Address[0]).Get(2)
-	case 20:
-		return bit.FromByte(m.Address[0]).Get(3)
-	case 21:
-		return false
-	case 22:
-		return bit.FromByte(m.Address[0]).Get(4)
-	case 23:
-		return bit.FromByte(m.Address[0]).Get(5)
-	case 24:
-		return bit.FromByte(m.Address[0]).Get(6)
-	case 25:
-		return bit.FromByte(m.Address[0]).Get(7)
-
-	}
-}
-
 // LDA performs an LDA operation
 func (m *Model) LDA(r Resolver) {
 	_, m.A = r(m)

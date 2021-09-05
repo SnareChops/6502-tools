@@ -1,16 +1,18 @@
-package parse
+package asm
 
 import (
-	"github.com/SnareChops/6502-tools/lang"
+	"github.com/SnareChops/6502-tools/asm/lang"
 )
 
 // Parser represents a parser function
-type Parser = func(string) (string, []byte)
+type ModeParser = func(string) (string, []byte)
+
+type ValueParser = func(string) []byte
 
 // A parses an absolute memory address
 func A(inp string) (string, []byte) {
 	if match := Submatch(inp, `^\$(.+)`); match != nil {
-		if valid, value := Uint16(match[1]); valid == "true" {
+		if value := Uint16(match[1]); value != nil {
 			return lang.A, value
 		}
 	}
@@ -19,7 +21,7 @@ func A(inp string) (string, []byte) {
 
 // I parses an immediate literal value
 func I(inp string) (string, []byte) {
-	if valid, value := Either(inp, Char, Uint8); valid == "true" {
+	if value := EitherValue(inp, Char, Uint8); value != nil {
 		return lang.I, value
 	}
 	return "", nil
@@ -29,7 +31,7 @@ func I(inp string) (string, []byte) {
 // ex: $1234,x
 func AX(inp string) (string, []byte) {
 	if match := Submatch(inp, `(?i)^\$(.+),x$`); match != nil {
-		if valid, value := Uint16(match[1]); valid == "true" {
+		if value := Uint16(match[1]); value != nil {
 			return lang.AX, value
 		}
 	}
@@ -40,7 +42,7 @@ func AX(inp string) (string, []byte) {
 // ex: $1234,y
 func AY(inp string) (string, []byte) {
 	if match := Submatch(inp, `(?i)^\$(.+),y$`); match != nil {
-		if valid, value := Uint16(match[1]); valid == "true" {
+		if value := Uint16(match[1]); value != nil {
 			return lang.AY, value
 		}
 	}
@@ -50,7 +52,7 @@ func AY(inp string) (string, []byte) {
 // ZP parses a zero page address
 func ZP(inp string) (string, []byte) {
 	if match := Submatch(inp, `^\$(.+)$`); match != nil {
-		if valid, value := Uint8(match[1]); valid == "true" {
+		if value := Uint8(match[1]); value != nil {
 			return lang.ZP, value
 		}
 	}
@@ -60,7 +62,7 @@ func ZP(inp string) (string, []byte) {
 // ZPX parses a zero paged with x address
 func ZPX(inp string) (string, []byte) {
 	if match := Submatch(inp, `^(.+),x$`); match != nil {
-		if valid, value := ZP(match[1]); valid != "" {
+		if _, value := ZP(match[1]); value != nil {
 			return lang.ZPX, value
 		}
 	}
@@ -70,7 +72,7 @@ func ZPX(inp string) (string, []byte) {
 // ZPY parses a zero paged with y address
 func ZPY(inp string) (string, []byte) {
 	if match := Submatch(inp, `^(.+),y$`); match != nil {
-		if valid, value := ZP(match[1]); valid != "" {
+		if _, value := ZP(match[1]); value != nil {
 			return lang.ZPY, value
 		}
 	}
@@ -80,7 +82,7 @@ func ZPY(inp string) (string, []byte) {
 // ZPIX parses a zero page indirect indexed with x address
 func ZPIX(inp string) (string, []byte) {
 	if match := Submatch(inp, `^\((.+),x\)$`); match != nil {
-		if valid, value := ZP(match[1]); valid != "" {
+		if _, value := ZP(match[1]); value != nil {
 			return lang.ZPIX, value
 		}
 	}
@@ -90,7 +92,7 @@ func ZPIX(inp string) (string, []byte) {
 // ZPIY parses a zero page indirect indexed with y address
 func ZPIY(inp string) (string, []byte) {
 	if match := Submatch(inp, `^\((.+)\),y$`); match != nil {
-		if valid, value := ZP(match[1]); valid != "" {
+		if _, value := ZP(match[1]); value != nil {
 			return lang.ZPIY, value
 		}
 	}
@@ -101,7 +103,7 @@ func ZPIY(inp string) (string, []byte) {
 func R(inp string) (string, []byte) {
 	if match := Submatch(inp, `^\$(.+)$`); match != nil {
 		println(match)
-		if valid, value := Int8(match[1]); valid != "" {
+		if value := Int8(match[1]); value != nil {
 			return lang.R, value
 		}
 	}
@@ -111,9 +113,16 @@ func R(inp string) (string, []byte) {
 // AI parses an Absolute Indirect value
 func AI(inp string) (string, []byte) {
 	if match := Submatch(inp, `^\((.+)\)$`); match != nil {
-		if valid, value := A(match[1]); valid != "" {
+		if _, value := A(match[1]); value != nil {
 			return lang.AI, value
 		}
+	}
+	return "", nil
+}
+
+func LabelAddress(inp string) (string, []byte) {
+	if match := Submatch(inp, `^[a-zA-Z][a-zA-Z1-9_]*$`); match != nil {
+		return lang.Label, []byte(match[0])
 	}
 	return "", nil
 }
